@@ -16,7 +16,7 @@ Route::get('/products', [ProductController::class, 'index'])->name("products.ind
 //la ruta atiende a verbos de HTML en este caso get.
 Route::get('products/create', [ProductController::class, 'create'])->name("products.create");
 
-Route::post('products/create', [ProductController::class, 'store'])->name("products.store");
+Route::post('products', [ProductController::class, 'store'])->name("products.store");
 
 //Esta ruta usa products/create, pasandole una variable
 Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show");
