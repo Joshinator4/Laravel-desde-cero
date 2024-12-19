@@ -5,6 +5,10 @@
 @section('content')
     <h1>List of Products</h1>
 
+    <!-- Se añaden links para que sea mas sencillo acceder a las rutas-->
+    <!-- añadiendo una ruta en el href se llama a las rutas con su respectivo llamado a los métodos del controlador -->
+    <a class="btn btn-succes" href="{{route('products.create')}}">Create Product</a>
+
     <!--Se genera una condicional de blade de esta forma, siempre hay que cerrarla con {{-- @endif--}}-->
     <!--Con la funcion de JS empty filtramos si está vacia o no-->
     {{--@if (empty($products))--}}
@@ -25,6 +29,7 @@
                         <th>Price</th>
                         <th>Stock</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,6 +41,19 @@
                             <td>{{ $product->price}}</td>
                             <td>{{ $product->stock}}</td>
                             <td>{{ $product->status}}</td>
+                            <td>
+                                <!-- añadiendo una ruta en el href se llama a las rutas con su respectivo llamado a los métodos del controlador -->
+                                <!-- en los casos de show y edit hay que pasarle como parametro a la ruta el id del producto, como lo estamos recorriendo con el foreach, se le pasa el atributo id del producto -->
+                                <a class="btn btn-link" href="{{route('products.show', ['product'=>$product->id])}}">Show Product</a>
+                                <a class="btn btn-link" href="{{route('products.edit', ['product'=>$product->id])}}">Edit Product</a>
+
+                                <!-- se realiza un formulario para poder hacer el DELETE ya que es un metodo falseado de POST.  -->
+                                <form method="POST" action="{{route('products.destroy', ['product'=>$product->id])}}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-link">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
 
