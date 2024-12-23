@@ -5,8 +5,10 @@
 //hay que tener cuidado con el orden de las rutas
 //hay rutas de tipo get, post, patch, put, delete y match
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProductController;
+
 
 
 Route::get('/', [MainController::class, 'index'])->name('main');
@@ -26,3 +28,11 @@ Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name(
 Route::match(['put', 'patch'], 'products/{product}', [ProductController::class, 'update'])->name("products.update");
 
 Route::delete('products/{product}', [ProductController::class, 'destroy'])->name("products.destroy");
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
