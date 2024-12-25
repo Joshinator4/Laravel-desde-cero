@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.app')
 
 @section('content')
 <h1>Edit a product</h1>
@@ -25,7 +25,6 @@
 
         <input class="form-control" type="number" min="1.00" step="0.01" name="price" value="{{ old('price') ??$product->price}}" required>
     </div>
-    </div>
     <div class="form-row">
         <label>Stock</label>
 
@@ -39,11 +38,11 @@
                 available
             </option>
             <option {{old('status') =='unavailable' ? 'selected' : ($product->status == 'unavailable' ? 'selected' : '')}}value="unavailable">
-                unavailable 
+                unavailable
             </option>
         </select>
     </div>
-    <div class="form-row">
+    <div class="form-row mt-3">
         <button type="submit" class="btn btn-primary btn-lg">Edit product</button>
     </div>
 </form>

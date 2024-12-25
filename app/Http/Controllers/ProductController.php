@@ -5,12 +5,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+
+    //!Este constructor se usa para que no se pueda usar ningun método/vista si el usuario no está loggeado usando el middleware auth
+    //!El middleware proporciona un mecanismo conveniente para inspeccionar y filtrar las solicitudes HTTP que ingresan a su aplicación. Por ejemplo, Laravel incluye un middleware que verifica que el usuario de su aplicación esté autenticado
+    public function __construct(){
+        $this->middleware("auth");// se puede usar ->except(['nombre de la función1', 'nombre de la función2']) y ->only('nombre de la función')
+    }
+
     public function index(){
         //! Esto es utilizando Query Builder (no es remoendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
         // $products = DB::table('products')->get();
@@ -34,36 +42,38 @@ class ProductController extends Controller
 
 
     //la funcion store recibirá un formulario de la funcion create
-    public function store (){
+    public function store (ProductRequest $request){
+        //!Pasando el request por parámetro del request creado anteriormente se hace la validación automáticamente pudiendo reutilizarla.
+
         //!aqui se generan las reglas en un array
-        $rules = [
-            'title'=> ['required', 'max: 255'],
-            'description' => ['required','max:1000'],
-            'price'=> ['required','min:1'],
-            'stock'=> ['required','min:0'],
-            'status'=>['required', 'in:available, unavailable']
-        ];
+        // $rules = [
+        //     'title'=> ['required', 'max: 255'],
+        //     'description' => ['required','max:1000'],
+        //     'price'=> ['required','min:1'],
+        //     'stock'=> ['required','min:0'],
+        //     'status'=>['required', 'in:available, unavailable']
+        // ];
         //!De esta forma se validan las reglas, si falla alguna se disparará una excepcion y se devuelve a la pagina donde se ha lanzado la excepcion
-        request()->validate($rules);
+        // request()->validate($rules);
 
         //Vamos a filtrar que al crear un producto si esta disponible no sea posible que el stock sea 0 o viceversa
-        if(request()->status == 'available' && request()->stock == 0){
+        // if($request->status == 'available' && $request->stock == 0){ //!Se puede usar el request enviado por parámetro $request o el helper(metodo)request()
             //session()->put('error', 'if the product is available must have stock');
             //!Con flash solo aparece el error unicamente hasta la siguiente petición.
             //error es el elemento que se debe captar y el mensaje es valor del elemento error
             // session()->flash('error', 'if the product is available must have stock');
             //se redirige al momento anterior al fallo y con withInput(request()->all()) se le envian los datos ya introducidos por el usuario para su posteriro solución
-            return redirect()
-                    ->back()
-                    ->withInput(request()->all())
-                    //se puede ahorrar el lanzamiento del error de flash() con ->witherros
-                    ->withErrors('if the product is available must have stock');
-        }
-        
+        //     return redirect()
+        //             ->back()
+        //             ->withInput($request->all())//! $request ->validated() solo pasa los atributos que se hayan validado. ->all()pasa todo
+                        //se puede ahorrar el lanzamiento del error de flash() con ->witherros
+        //             ->withErrors('if the product is available must have stock');
+        // }
+
         //se puede hacer que borre el mensaje de error así pero solo si se ha completado con exito la creación de un producto en este caso en concreto
         //session()->forget('error');
-        
-        
+
+
         // $product = Product::create([
             //Una forma sencilla de traerse los datos del POST realizado en el formulario de la vista de create.blade.php es con request()->nombre del input (name="title")por ejemplo
             //     'title' => request()->title,
@@ -72,25 +82,27 @@ class ProductController extends Controller
             //     'stock' => request()->stock,
             //     'status'=> request()->status,
             // ]);
-            //!Esta forma es mas rapida y directa.Se trae los datos del POST realizado en el formulario de la vista de create.blade.php. Este request solo pasará los atributos asignados en fillable en el model Product. ESto puede traer mas atributos que serán ignorados si no estan en fillable
-            $product = Product::create(request()->all());
-        
+
+        //!Esta forma es mas rapida y directa.Se trae los datos del POST realizado en el formulario de la vista de create.blade.php. Este request solo pasará los atributos asignados en fillable en el model Product. ESto puede traer mas atributos que serán ignorados si no estan en fillable
+        $product = Product::create(request()->all());
+
         //Así devolveriamos mensajes de exito
         //session()->flash('success', "The new product with id: {$product->id} was created");
 
         //Así devolveriamos el objeto creado
         // return $product;
-        
+
         // de esta forma se redirige a la ruta que queramos
         // return redirect()->back(); vuelve a la página anterior a en la que estemos
         // return redirect()->action([MainController::class, 'index']); manda la accion del controlador indicado
         return redirect()
-                ->route('products.index')//con route() enviamos a la ruta indicada. Es mejor usar esta opcion por si cambia el nombre del método no tienes que cambiar nada aquí
-                ->withSuccess("The new product with id: {$product->id} was created"); 
+                ->route('products.index')//con route() enviamos a la ruta indicada. Es mejor usar esta opcion por si cambia el nombre del método no tienes que cambiar nada aquí. La ruta es a una vista!!!
+                ->withSuccess("The new product with id: {$product->id} was created");
                 //se puede usar with('success', "The new product with id: {$product->id} was created")de las 2 formas se creará en la sesion una variable success par enviarle los mensajes deseados
     }
 
-    public function show ($product){
+    //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
+    public function show (Product $product){
         //Esto es utilizando Query Builder (no es remoendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
         //obtenemos un elemento de la tabla products filtrandolo por el id que se le introducirá. Como sabemos que solo devuelve 1 producto, se usa first()
         // $product = DB::table("products")->where("id", $product)->first();
@@ -102,7 +114,7 @@ class ProductController extends Controller
         //!El metodo find busca en el modelo el producto con id que se le pasa por parámetro
         // $product= Product::find($product);
         //!El metodo find busca en el modelo el producto con id que se le pasa por parámetro. si no existe manda una excepcion de tipo 404
-        $product = Product::findOrFail($product);
+        // $product = Product::findOrFail($product);
         // dd($product);
         // return $product; si se utiliza así devuelve los datos en formato json
 
@@ -111,46 +123,44 @@ class ProductController extends Controller
         return view('products.show')->with(['product'=> $product]);
     }
 
-
-    public function edit ($product){
+    //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
+    public function edit (Product $product){
         //!desde aqui llamamos a la vista de edit y se le pasa la variable producto buscada por el id que se recibe del html
-        return view('products.edit')->with(['product'=> Product::findOrFail($product)]);
+        return view('products.edit')->with(['product'=> $product]);
         // return "Showing the form to edit the product with id: {$product}";
     }
 
+    //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
+    public function update (ProductRequest $request, Product $product){
+        //!Pasando el request por parámetro del request creado anteriormente se hace la validación automáticamente pudiendo reutilizarla.
 
-    public function update ($product){
         //!aqui se generan las reglas en un array
-        $rules = [
-            'title'=> ['required', 'max: 255'],
-            'description' => ['required','max:1000'],
-            'price'=> ['required','min:1'],
-            'stock'=> ['required','min:0'],
-            'status'=>['required', 'in:available, unavailable']
-        ];
+        // $rules = [
+        //     'title'=> ['required', 'max: 255'],
+        //     'description' => ['required','max:1000'],
+        //     'price'=> ['required','min:1'],
+        //     'stock'=> ['required','min:0'],
+        //     'status'=>['required', 'in:available, unavailable']
+        // ];
         //!De esta forma se validan las reglas, si falla alguna se disparará una excepcion y se devuelve a la pagina donde se ha lanzado la excepcion
-        request()->validate($rules);
+        // request()->validate($rules);
 
-        $product = Product::findOrFail($product);
-
-        $product->update(request()->all());
+        $product->update($request->validated());//!Se puede usar el request enviado por parámetro $request o el helper(metodo)request()
 
         // return $product;
         return redirect()
-                ->route('products.index')//con route() enviamos a la ruta indicada. Es mejor usar esta opcion por si cambia el nombre del método no tienes que cambiar nada aquí
-                ->withSuccess("The new product with id: {$product->id} was edited"); 
+                ->route('products.index')//con route() enviamos a la ruta indicada. Es mejor usar esta opcion por si cambia el nombre del método no tienes que cambiar nada aquí. La ruta es a una vista!!!
+                ->withSuccess("The new product with id: {$product->id} was edited");
                 //se puede usar with('success', "The new product with id: {$product->id} was created")de las 2 formas se creará en la sesion una variable success par enviarle los mensajes deseados
     }
 
-
-    public function destroy ($product){
-
-        $product = Product::findOrFail($product);
+    //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
+    public function destroy (Product $product){
 
         $product->delete();
 
         // return $product;
-        return redirect()->route('products.index') //con route() enviamos a la ruta indicada. Es mejor usar esta opcion por si cambia el nombre del método no tienes que cambiar nada aquí
+        return redirect()->route('products.index') //con route() enviamos a la ruta indicada. Es mejor usar esta opcion por si cambia el nombre del método no tienes que cambiar nada aquí. La ruta es a una vista!!!
         ->withSuccess("The new product with id: {$product->id} was eliminated");
         //se puede usar with('success', "The new product with id: {$product->id} was created")de las 2 formas se creará en la sesion una variable success par enviarle los mensajes deseados
     }

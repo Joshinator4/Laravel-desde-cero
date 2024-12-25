@@ -11,28 +11,34 @@ use App\Http\Controllers\ProductController;
 
 
 
+
+
 Route::get('/', [MainController::class, 'index'])->name('main');
 
-Route::get('/products', [ProductController::class, 'index'])->name("products.index");
-
-//la ruta atiende a verbos de HTML en este caso get.
-Route::get('products/create', [ProductController::class, 'create'])->name("products.create");
-
-Route::post('products', [ProductController::class, 'store'])->name("products.store");
-
-//Esta ruta usa products/create, pasandole una variable
-Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show");
-
-Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name("products.edit");
-
-Route::match(['put', 'patch'], 'products/{product}', [ProductController::class, 'update'])->name("products.update");
-
-Route::delete('products/{product}', [ProductController::class, 'destroy'])->name("products.destroy");
+//rutas de recurso. Es un conjunto de rutas CRUD de un recurso específico
+Route::resource('products', ProductController::class);//->only(['nombredelafuncion']) con only dejamos solo el uso de las rutas que le indiquemos, ->except([]) lo mismo que only pero a la vicerserva
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Auth::routes();
+// Route::get('/products', [ProductController::class, 'index'])->name("products.index");
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//!la ruta atiende a verbos de HTML en este caso get.
+// Route::get('products/create', [ProductController::class, 'create'])->name("products.create");
+
+// Route::post('products', [ProductController::class, 'store'])->name("products.store");
+
+//!Esta ruta usa products/create, pasandole una variable
+// Route::get('products/{product}', [ProductController::class, 'show'])->name("products.show");
+
+//!se le puede pasar un valor que no sea el id (que es el predefinido, usando :nombredelatributo) se debe cambiar en sus respectivas vistas para que todo funcione
+//!Route::get('products/{product:title}', [ProductController::class, 'show'])->name("products.show");
+
+// Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name("products.edit");
+
+// Route::match(['put', 'patch'], 'products/{product}', [ProductController::class, 'update'])->name("products.update");
+
+// Route::delete('products/{product}', [ProductController::class, 'destroy'])->name("products.destroy");
+
+

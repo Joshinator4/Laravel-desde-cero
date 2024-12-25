@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        // 'admin_since',
     ];
 
     /**
@@ -45,4 +46,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    //Esto es para trabajar con Carbon php. estos son los atributos que deben ser mutados a dates
+    protected $dates = [
+        'payed_at',
+     ];
 }
