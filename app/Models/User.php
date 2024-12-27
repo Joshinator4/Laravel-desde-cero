@@ -49,6 +49,22 @@ class User extends Authenticatable
 
     //Esto es para trabajar con Carbon php. estos son los atributos que deben ser mutados a dates
     protected $dates = [
-        'payed_at',
+        'admin_at',
      ];
+
+     //esta funcion es para definir la relacion uno a muchos con order con hasMany. un usuario tiene muchas order
+     public function orders(){
+        return $this->hasMany(Order::class, 'customer_id');//!El segundo parámetro es para indicarle el nombre de la columna. Laravel piensa que se llama user_id (ya que viene de la tabla users) hay que hacerlo en user y en order
+     }
+
+     //esta funcion es para definir la relacion de usuarios con pagos a través de orders. un usuario tiene muchos payment. Relaciones de relaciones
+     public function payments(){
+        return $this->hasManyThrough(Payment::class,Order::class,'customer_id');//!1er parametro la clase a la que deseamos llegar, 2º a través de que clase se llega y 3º es la clave por la cual se llega (hay que indicarla por no llamarse de forma predefinida user_id)
+     }
+
+
+     //esta funcion define la relacion polimórfica uno a uno con image. Image puede ser de producto o de usuario
+     public function image(){
+        return $this->morphOne(Image::class,'imageable');//!1er argumento la clase imagen. 2º argumento el nombre de la columna de la relacion polimórfica
+     }
 }

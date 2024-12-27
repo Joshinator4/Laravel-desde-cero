@@ -18,7 +18,7 @@ class OrderFactory extends Factory
     {
         return [
             'status' => $this->faker->randomElement(['pending', 'paid', 'shipped']),
-            //customer_id
+            'customer_id' => $this->faker->numberBetween(1,3)
         ];
     }
 }

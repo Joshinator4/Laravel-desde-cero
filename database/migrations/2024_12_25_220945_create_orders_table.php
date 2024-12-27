@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('status')->default('pending');
-            //customer_id foreing key
+            $table->unsignedBigInteger('customer_id');//!IMPORTANTE si apunta a id de usuario tiene que ser unsignedBigInteger() SI o SI
             $table->timestamps();
+
+            $table->foreign('customer_id')->references('id')->on('users');
+
         });
     }
 

@@ -19,7 +19,7 @@ class PaymentFactory extends Factory
         return [
             'amount'=>$this->faker->randomFloat($maxDecimals = 2, $min = 15, $max = 500),
             'payed_at'=>$this->faker->dateTimeBetween($startDate= '-1 year', $endDate= 'now', $timezone= null),
-            //order_id
+            'order_id'=> $this->faker->numberBetween(1, 20),
         ];
     }
 }

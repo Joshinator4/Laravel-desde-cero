@@ -4,9 +4,14 @@
 //acordarse de importar(use) las rutas de los controladores
 //hay que tener cuidado con el orden de las rutas
 //hay rutas de tipo get, post, patch, put, delete y match
+
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderPaymentController;
+use App\Http\Controllers\ProductCartController;
 use App\Http\Controllers\ProductController;
 
 
@@ -15,8 +20,18 @@ use App\Http\Controllers\ProductController;
 
 Route::get('/', [MainController::class, 'index'])->name('main');
 
-//rutas de recurso. Es un conjunto de rutas CRUD de un recurso específico
+//rutas de recurso. Es un conjunto de rutas CRUD de un recurso específico1er parametro el nombre del recurso (se agrupan todos por ese nombre) se accede por ejemplo como products.destroy y el 2º el controlador
 Route::resource('products', ProductController::class);//->only(['nombredelafuncion']) con only dejamos solo el uso de las rutas que le indiquemos, ->except([]) lo mismo que only pero a la vicerserva
+
+//rutas de recurso. Es un conjunto de rutas CRUD de un recurso específico. 1er parametro el nombre del recurso (se agrupan todos por ese nombre) se accede por ejemplo como products.carts.store y el 2º el controlador. Ruta anidada
+Route::resource('products.carts', ProductCartController::class)->only('store', 'destroy');//->only(['nombredelafuncion']) con only dejamos solo el uso de las rutas que le indiquemos, ->except([]) lo mismo que only pero a la vicerserva
+
+Route::resource('carts', CartController::class)->only('index');
+
+Route::resource('orders', OrderController::class)->only('create', 'store');
+
+//ruta anidada
+Route::resource('orders.payments', OrderPaymentController::class)->only('create', 'store');
 
 Auth::routes();
 

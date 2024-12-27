@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->float('amount')->unsigned();
             $table->timestamp('payed_at')->nullable();
-            //order id foreign key
+            $table->unsignedBigInteger('order_id')->unsigned();//esto es una clave foránea
             $table->timestamps();
+
+            $table->foreign('order_id')->references('id')->on('orders');//así se define la froeign key
         });
     }
 

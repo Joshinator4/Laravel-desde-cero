@@ -33,6 +33,16 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('products.index') }}">{{ __('Products') }}</a>
                         </li>
+                        {{-- Esta es la pestaña del carrito --}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('carts.index') }}">
+                                {{-- Así podremos añadir la funcion de contar los productos que tiene el carrito --}}
+                                @inject('cartService', 'App\Services\CartService'){{--Con inject podemos agregar servicios a las vistas --}}
+                                Cart ({{ $cartService->countProducts() }})
+
+                            </a>
+
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->

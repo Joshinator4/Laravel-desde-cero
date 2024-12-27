@@ -13,10 +13,16 @@ class Payment extends Model
     protected $fillable = [
         'amount',
         'payed_at',
+        'oder_id',
     ];
 
     //Esto es para trabajar con Carbon php. estos son los atributos que deben ser mutados a dates
     protected $dates = [
         'payed_at',
      ];
+
+     //este metodo define que el payment pertenece a el order. retorna el id del order
+     public function order(){
+        return $this->belongsTo(Order::class);
+     }
 }

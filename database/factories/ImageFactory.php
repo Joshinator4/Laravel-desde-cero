@@ -18,7 +18,7 @@ class ImageFactory extends Factory
     {
         $fileName = $this->faker->numberBetween(1,10) . '.jpg';
         return [
-            'path'=> "img/products/{$fileName}"
+            'path'=> "img/products/{$fileName}",
         ];
     }
 
@@ -26,7 +26,7 @@ class ImageFactory extends Factory
         $fileName = $this->faker->numberBetween(1,5) . '.jpg';
 
         return $this->state([
-            'path'=> "img/users/{$fileName}"
+            'path'=> "img/users/{$fileName}",
         ]);
     }
 }

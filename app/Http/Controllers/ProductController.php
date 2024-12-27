@@ -20,7 +20,7 @@ class ProductController extends Controller
     }
 
     public function index(){
-        //! Esto es utilizando Query Builder (no es remoendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
+        //! Esto es utilizando Query Builder (no es recomendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
         // $products = DB::table('products')->get();
         // mostramos lo datos parando la ejecucuion
         // dd($products);
@@ -164,4 +164,6 @@ class ProductController extends Controller
         ->withSuccess("The new product with id: {$product->id} was eliminated");
         //se puede usar with('success', "The new product with id: {$product->id} was created")de las 2 formas se creará en la sesion una variable success par enviarle los mensajes deseados
     }
+
+
 }
