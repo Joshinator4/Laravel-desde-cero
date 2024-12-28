@@ -3,12 +3,12 @@
 //Un crontrolador es el componente encargado de manejar la logica del negocio en cosas como crear, actualizar, eliminar, mostrar, leer, filtrar...etc debe ser realizado en un controlador
 //nos salva de lidiar con la logica de negocio en el lugar incorrecto y nos permite agregar mas complejidad en las acciones que necesitamos realizar
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Panel;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\PanelProduct;
+
 
 class ProductController extends Controller
 {
@@ -31,7 +31,9 @@ class ProductController extends Controller
         // dd($products);
 
         return view('products.index')->with([
-            'products'=> Product::all(),
+            // 'products'=> PanelProduct::withoutGlobalScope(AvailableScope::class)->get(),//!Se desea que se muestren todos los productos, disponibles y no disponibles. Se ignora el global scope AvailableScope. Asi se genera el problema de que se muestran los unavailable pero no dejar entrar en los metodos edit, show, delete porque ignora estos productos por el global scope
+            // 'products'=> PanelProduct::all(),//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
+            'products'=> PanelProduct::without('images')->get(), //*Se hace esto para recibir los productos sin imagenes ya que no se van a utilizar
         ]);
     }
 
@@ -84,7 +86,7 @@ class ProductController extends Controller
             // ]);
 
         //!Esta forma es mas rapida y directa.Se trae los datos del POST realizado en el formulario de la vista de create.blade.php. Este request solo pasará los atributos asignados en fillable en el model Product. ESto puede traer mas atributos que serán ignorados si no estan en fillable
-        $product = Product::create(request()->all());
+        $product = PanelProduct::create(request()->all());//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
 
         //Así devolveriamos mensajes de exito
         //session()->flash('success', "The new product with id: {$product->id} was created");
@@ -101,9 +103,10 @@ class ProductController extends Controller
                 //se puede usar with('success', "The new product with id: {$product->id} was created")de las 2 formas se creará en la sesion una variable success par enviarle los mensajes deseados
     }
 
+    //? SE HA CAMBIADO EL TIPO (model) DE PRODUCTO RECIBIDO A PanelProduct PARA PODER ADAPTARSE AL CAMBIO PARA NO USAR EL GLOBALSCOPE
     //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
-    public function show (Product $product){
-        //Esto es utilizando Query Builder (no es remoendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
+    public function show (PanelProduct $product){
+        //Esto es utilizando Query Builder (no es recomendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
         //obtenemos un elemento de la tabla products filtrandolo por el id que se le introducirá. Como sabemos que solo devuelve 1 producto, se usa first()
         // $product = DB::table("products")->where("id", $product)->first();
         //! tambien se puede hacer así porque buscamos por id. find busca por la clave principal devolviendo toda la linea
@@ -123,15 +126,17 @@ class ProductController extends Controller
         return view('products.show')->with(['product'=> $product]);
     }
 
+    //? SE HA CAMBIADO EL TIPO (model) DE PRODUCTO RECIBIDO A PanelProduct PARA PODER ADAPTARSE AL CAMBIO PARA NO USAR EL GLOBALSCOPE
     //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
-    public function edit (Product $product){
+    public function edit (PanelProduct $product){
         //!desde aqui llamamos a la vista de edit y se le pasa la variable producto buscada por el id que se recibe del html
         return view('products.edit')->with(['product'=> $product]);
         // return "Showing the form to edit the product with id: {$product}";
     }
 
+    //? SE HA CAMBIADO EL TIPO (model) DE PRODUCTO RECIBIDO A PanelProduct PARA PODER ADAPTARSE AL CAMBIO PARA NO USAR EL GLOBALSCOPE
     //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
-    public function update (ProductRequest $request, Product $product){
+    public function update (ProductRequest $request, PanelProduct $product){
         //!Pasando el request por parámetro del request creado anteriormente se hace la validación automáticamente pudiendo reutilizarla.
 
         //!aqui se generan las reglas en un array
@@ -154,8 +159,9 @@ class ProductController extends Controller
                 //se puede usar with('success', "The new product with id: {$product->id} was created")de las 2 formas se creará en la sesion una variable success par enviarle los mensajes deseados
     }
 
+    //? SE HA CAMBIADO EL TIPO (model) DE PRODUCTO RECIBIDO A PanelProduct PARA PODER ADAPTARSE AL CAMBIO PARA NO USAR EL GLOBALSCOPE
     //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
-    public function destroy (Product $product){
+    public function destroy (PanelProduct $product){
 
         $product->delete();
 

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class MainController extends Controller
 {
@@ -12,8 +13,12 @@ class MainController extends Controller
         // dump( $name); son helpers para poder conocer el valor de la variable en el momento de la ejecución sin detenerla
         //dd($name); dd es igual que dump pero detiene la ejecucion en el
 
-        //!esto es la llamada a un scope
-        $products = Product::available()->get();
+        // DB::connection()->enableQueryLog();
+
+        //!esto es la llamada a un scope. Al implementarse el global scope creado AvailableScope ya no hace falta llamar al local scope scopeAvalable del modelo
+        // $products = Product::available()->get();
+        //!Ahora al usar el global scope creado AvailableScope se puede usar all() ya que realizará el filtrado de forma automática
+        $products = Product::all();
 
         return view("welcome")->with([
             'products'=> $products,

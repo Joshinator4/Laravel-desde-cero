@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -40,27 +42,43 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // $user = Auth::user(); se puede hacer con el facades Auth
-        $user = $request->user();//se puede hacer através de la peticion. A traves del request asociado a la autenticación se recibe el usuario
+        //!Asi se usa una transacción en la BBDD. si esta todo correcto hace commit, si falla algo rollback. DB es un facade
+        return DB::transaction(function () use( $request ) {
+            // $user = Auth::user(); se puede hacer con el facades Auth
+            $user = $request->user();//se puede hacer através de la peticion. A traves del request asociado a la autenticación se recibe el usuario
 
-        //creamos una orden en la BBDD a través de create pasandole solo el statusya que el customer_id lo cogera del user, el status se pone como pending pouque falta pagarla
-        $order = $user->orders()->create([
-            'status' => 'pending'
-        ]);
+            //creamos una orden en la BBDD a través de create pasandole solo el statusya que el customer_id lo cogera del user, el status se pone como pending pouque falta pagarla
+            $order = $user->orders()->create([
+                'status' => 'pending'
+            ]);
 
-        $cart = $this->cartService->getFromCookie();//ya se sabe que existe el carrito no hace falta comprobarlo
+            $cart = $this->cartService->getFromCookie();//ya se sabe que existe el carrito no hace falta comprobarlo
 
-        //se hace un mapeo del cart para quedarnos con el id de los productos (key) y la cantidad (value)
-        $cartProdcutsWithQuantity = $cart
-            ->products
-            ->mapWithKeys(function($product){//mapWithKeys permite asignar el valor que deseemos a la key, en este caso serán los id de los productos
-                $element[$product->id] = ['quantity' => $product->pivot->quantity];
+            //se hace un mapeo del cart para quedarnos con el id de los productos (key) y la cantidad (value)
+            $cartProdcutsWithQuantity = $cart
+                ->products
+                ->mapWithKeys(function($product){//mapWithKeys permite asignar el valor que deseemos a la key, en este caso serán los id de los productos. Hace un mapeo del array products
+                    $quantity = $product->pivot->quantity;
+                    //!Este condicional se crea cerciorarnos que la cantidad solicitada en el carrito para crear la orden no supera el stock
+                    if($product->stock < $quantity){
+                        //?Si no hay mas quantity solicitada que el stock, lanzará una excecpción de validacion
+                        throw ValidationException::withMessages([
+                            'product'=> "There is not enough stock for the quantity you required of {$product->title}"
+                        ]);//*muy importante disparar la excepcion ya que estamos dentro de una transacción para que salte el rollback
+                    }
 
-                return $element;
-            });
-        $order->products()->attach($cartProdcutsWithQuantity->toArray());
+                    $product->decrement('stock', $quantity);//*Esta funcion decrementa en la BBDD a la columna pasada como 1er argumento la cantidad pasada por el 2º argumento
 
-        return redirect()->route('orders.payments.create', ['order' => $order]);
+                    //!A cada elemento se le pone como key el id del product y como valor se le pasa un array declarativo con key 'quantity' value la cantidad
+                    $element[$product->id] = ['quantity' => $quantity];
+
+                    return $element;
+                });
+            $order->products()->attach($cartProdcutsWithQuantity->toArray());
+
+            return redirect()->route('orders.payments.create', ['order' => $order]);
+
+        }, 3);//! Se le puede pasar un segundo parámero que son el numero de intentos que se va a intentar realizar el proceso
     }
 
 }

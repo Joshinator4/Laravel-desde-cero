@@ -30,9 +30,13 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('products.index') }}">{{ __('Products') }}</a>
-                        </li>
+                        {{-- Helper optional: si hay algo que puede ser null no saltará un error de null (en este caso el usuario, si no hay usuario logeado user() devolveria null) --}}
+                        {{-- A traves del helper auth()buscamos el usuario que este logeado ->user() y llamamos al metodo ->isAdmin --}}
+                        @if (optional(auth()->user())->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('panel') }}">{{ __('Panel') }}</a>
+                            </li>
+                        @endif
                         {{-- Esta es la pestaña del carrito --}}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('carts.index') }}">

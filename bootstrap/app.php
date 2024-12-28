@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        //Hay que añadir el middleware para que funcione en la ruta. En AppServiceProvider se ha añadido el middleware is.admin. para que funcione con ese alias se hace así
+        $middleware->alias(
+            ['is.admin' => \App\Http\Middleware\CheckIfAdmin::class]
+        );
+        //Si se desea que el middleware sea global se haría $middleware->add(\App\Http\Middleware\CheckAdmin::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

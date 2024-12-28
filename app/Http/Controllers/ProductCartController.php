@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use \Illuminate\Validation\ValidationException;
 
 class ProductCartController extends Controller
 
@@ -28,9 +29,17 @@ class ProductCartController extends Controller
         // $cart = Cart::create();//creamos el carro
 
         $quantity = $cart->products()//!se busca la cantidad del producto añadido al carro (por si ya se ha añadido una cantidad)
-                        ->find($product->id)//se hace la busqueda por el id del producto
+                        ->find($product->id)//se hace la busqueda por el id del producto recibido por parámetro
                         ->pivot//el atributo pivot contiene las claves foráneas y la cantidad en este caso
                         ->quantity ?? 0;//se crea condicional, si no existe se pone a 0, si no se pone la cantidad recibida por quantity
+
+        //!Este condicional se crea cerciorarnos que la cantidad solicitada para añadir al carrito no supera el stock actual del producto. OJO si no habia quantity del produto en el cart, quantity será 0, pero no es correcto porque ya se ha añadido 1 por eso se suma 1 a quantity
+        if($product->stock < $quantity +1){
+            //?Si no hay mas quantity solicitada que el stock, lanzará una excecpción de validacion
+            throw ValidationException::withMessages([
+                'product'=> "There is not enough stock for the quantity you required of {$product->title}"
+            ]);
+        }
 
         $cart->products()->syncWithoutDetaching([$product->id => ['quantity' => $quantity +1],]);//sync verifica si ya existe ese producto en el carrito y suma 1 en el contador, pero solo se queda con el último añadido. syncWithoutDetaching hace las 2 funciones añade a los ya existentes y si se marca otro diferencte tambien lo guarda
 

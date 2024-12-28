@@ -6,11 +6,23 @@ namespace App\Models;
 
 //Este modelo se ha creado con php artisan make:model Product
 
+use App\Models\Scopes\AvailableScope;
+
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+//!ASI SE AÑADEN SCOPES AL MODELO. En este caso solo cogera en cada query que se haga a la BBDD solo los productos que tengas status = available
+#[ScopedBy([AvailableScope::class])]
 class Product extends Model
 {
+    protected $table = 'products';//!Esta es una forma de indicar a laravel de forma explicita que su tabla en la BBDD es la que se llama products y por ende todas las clases que heren de esta, su tabla tambien será products
+
+    //!Este es un eager, se le indica que en las consultas a las BBDD que se hagan de productos se traigan siempre estas relaciones (en este caso solo las imagenes)
+    protected $with = [
+        'images',
+    ];
+
     //se usa hasfactory para crear valores aleatorios
     use HasFactory;
     //Se crea vacio y se añade el fillable que se usa para asignar atributos de manera masiva
@@ -21,6 +33,15 @@ class Product extends Model
         'stock',
         'status',
     ];
+
+    //!Tambien se puede añadir el global scope de esta forma
+    /**
+     * The "booted" method of the model.
+     */
+    // protected static function booted(): void
+    // {
+    //     static::addGlobalScope(new AvailableScope);
+    // }
 
     //Esta funcion trae los datos de la tabla pivote de carts-products. Hay que usar belong to many xq es relacion muchos a muchos.
     public function carts(){

@@ -7,7 +7,14 @@ use Illuminate\Support\Facades\Cookie;
 
 class CartService{
 
-    protected $cookieName = 'cart';
+    //?ESTO es para usar los nombre etc crados en el archivo de configuracion cart
+    protected $cookieName;
+    protected $cookieExpiration;
+
+    public function __construct(){
+        $this->cookieName = config('cart.cookie.name');
+        $this->cookieExpiration =  config('cart.cookie.expiration');
+    }
 
     //Este metodo si existe ya la cookie cart se queda con el cart y lo devuelve, si no existe devuelve null.
     public function getFromCookie(){
@@ -29,7 +36,7 @@ class CartService{
 
     public function makeCookie(Cart $cart){
 
-        return Cookie::make($this->cookieName, $cart->id, 7*24*60);//se crea la cookie de nuevo, se le pasa el id del cart creado para que la cookie este "actualizada con la nueva cantidad" y el tiempo que queramos(este caso 1 semana)
+        return Cookie::make($this->cookieName, $cart->id, $this->cookieExpiration);//se crea la cookie de nuevo, se le pasa el id del cart creado para que la cookie este "actualizada con la nueva cantidad" y el tiempo que queramos(este caso 1 semana)
     }
 
     //Este metodo contará la cantidad de productos que hay en el carrito

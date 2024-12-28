@@ -9,8 +9,9 @@
         <div class="alert alert-danger">
             <strong>No products yet!</strong>
         </div>
-    @endempty
+    @else
         <div class="row">
+            {{-- @dump($products) --}}
             @foreach ($products as $product)
                 <div class="col-3">
                     <!--ASI incluimos componentes de blade para reutilizar código -->
@@ -18,5 +19,9 @@
                 </div>
             @endforeach
 
+
+            {{-- @dump($products) --}}
+            {{-- @dd(\DB::getQueryLog()) --}}
         </div>
+    @endempty
 @endsection

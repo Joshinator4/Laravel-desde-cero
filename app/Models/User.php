@@ -3,11 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -39,18 +40,21 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    //PARA LARAVEL 8 Y SUPERIORES SE HACE EL CAST AQUI
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'admin_since' => 'datetime',
         ];
     }
 
+    //ESTO ES PARA LARAVEL 7 y anteriores
     //Esto es para trabajar con Carbon php. estos son los atributos que deben ser mutados a dates
-    protected $dates = [
-        'admin_at',
-     ];
+    // protected $dates = [
+    //     'admin_since',
+    //  ];
 
      //esta funcion es para definir la relacion uno a muchos con order con hasMany. un usuario tiene muchas order
      public function orders(){
@@ -66,5 +70,11 @@ class User extends Authenticatable
      //esta funcion define la relacion polimórfica uno a uno con image. Image puede ser de producto o de usuario
      public function image(){
         return $this->morphOne(Image::class,'imageable');//!1er argumento la clase imagen. 2º argumento el nombre de la columna de la relacion polimórfica
+     }
+
+     public function isAdmin(){
+        if($this->admin_since != null && $this->admin_since->lessThanOrEqualTo(now())){
+            return true;
+        }
      }
 }
