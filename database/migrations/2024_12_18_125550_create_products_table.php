@@ -21,6 +21,7 @@ return new class extends Migration
             $table->float('price')->unsigned();
             $table->integer('stock')->unsigned();
             $table->string('status')->default('unavailable');
+            $table->softDeletes();//!este campo es para poder realizar el softdelete de este producto. No se elimina solo se oculta
             $table->timestamps();
         });
     }

@@ -29,10 +29,13 @@ class ProductRequest extends FormRequest
             'description' => ['required','max:1000'],
             'price'=> ['required','min:1'],
             'stock'=> ['required','min:0'],
-            'status'=>['required', 'in:available, unavailable']
+            'status'=>['required', 'in:available, unavailable'],
+            'images.*'=>['nullable', 'image']//images.* indica que cualquier archivo que venga en el array de images, sean imagenes
+
         ];
     }
 
+    //! este metodo es para validar, en este caso, si el stock esta en 0 que
     public function withValidator($validator){
         $validator->after(function ($validator) {
             if($this->status == 'available' && $this->stock == 0){ //!Se usa this porque ya estamos en la request

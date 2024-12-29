@@ -1,5 +1,5 @@
 <?php
-
+//!ATENCIÓN se debe ignorar en git las carpetas generadas en storage por medio de .gitignore
 return [
 
     /*
@@ -29,6 +29,14 @@ return [
     */
 
     'disks' => [
+        //*aqui configuramos los discos o sistema de almacenamiento de archivos del sistema, tantos como sean necesarios. En este caso vamos a guardar las imágenes en storage/app/public/images. Se debe de crear los links abajo de este archivo
+        'images' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/images'),
+            'url' => env('APP_URL').'/images',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
 
         'local' => [
             'driver' => 'local',
@@ -72,6 +80,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('images') => storage_path('app/public/images'),//*Se crea virtualmente una carpeta igual a storage/app/public/images en public/images para poder acceder a los archivos que haya en el storage
     ],
 
 ];

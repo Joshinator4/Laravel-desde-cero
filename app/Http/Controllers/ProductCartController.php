@@ -43,6 +43,8 @@ class ProductCartController extends Controller
 
         $cart->products()->syncWithoutDetaching([$product->id => ['quantity' => $quantity +1],]);//sync verifica si ya existe ese producto en el carrito y suma 1 en el contador, pero solo se queda con el último añadido. syncWithoutDetaching hace las 2 funciones añade a los ya existentes y si se marca otro diferencte tambien lo guarda
 
+        $cart->touch();//*este metodo lo que hace es actualizar el carrito, para actualizar su fecha de eliminacion etc, para que un carrito que no ha sido abandonado, no se siga tratando como tal. Al agregar cualquier producto se actualizará
+
         $cookie = $this->cartService->makeCookie($cart);
 
         return redirect()->back()->cookie($cookie);

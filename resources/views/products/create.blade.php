@@ -4,7 +4,7 @@
 	<h1>Create a product</h1>
     <!-- En la accion del formulario se llama a la ruta por el nombre productos.store -->
     <!-- El metodo es de tipo POST a la ruta llamada products.store-->
-	<form method="POST" action="{{ route('products.store') }}">
+	<form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
         <!-- Hay que incluir csrf en nuestros formularios para que sean seguros -->
         @csrf
         <div class="form-row">
@@ -36,6 +36,16 @@
                 <option {{old('status') == 'available' ? 'selected' : ''}} value="available">available</option>
                 <option {{old('status') == 'unavailable' ? 'selected' : ''}} value="unavailable">unavailable </option>
             </select>
+        </div>
+
+        <div class="form-row">
+
+            <label>{{ __('Images') }}</label>
+            <div class="custom-file">
+                <input type="file" accept="image/*" name="images[]" class="custom-file-input" multiple>
+                <label class="custom-file-label">Product images...</label>
+            </div>
+
         </div>
         <div class="form-row mt-3">
             <button type="submit" class="btn btn-primary btn-lg">Crate product</button>

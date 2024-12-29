@@ -9,5 +9,12 @@
 	<p>stock: {{ $product->stock }}</p>
 	<p>status: {{ $product->status }}</p> --}}
     <!--ASI incluimos componentes de blade para reutilizar código -->
-    @include('components.product-cart')
+
+    {{-- Se crea un estilo antes del include para que se muestre como lo deseamos --}}
+    <div class="row justify-content-center">
+        <div class="col-4">
+            @include('components.product-cart')
+        </div>
+    </div>
+
 @endsection

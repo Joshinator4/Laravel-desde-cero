@@ -14,4 +14,17 @@ class PanelProduct extends Product
         static::withoutGlobalScope(AvailableScope::class);//!Se hace asi por el uso del #ScopedBy del modelo Product, se indica que ahora se ignnorará el global scope
         // static::addGlobalScope(new AvailableScope); Asi se haria si se ha usado el metodo booted en el modelo Product, pero se ha usado e #ScopedBy
     }
+
+    //!Este metodo devolverá la clave foránea del product padre. para poder recibir las imagenes y etc...
+    public function getForeignKey(){
+        $parent = get_parent_class($this);//*A la variable parent se le asigna la clase padre product
+
+        return (new $parent)->getForeignKey();//Estamos obligados a crear una estancia del padre para poder trabajar con el y recibimos la clave foránea
+    }
+     //!Este metodo devolverá la clave foránea del product para las relaciones polimóficas
+    public function getMorphClass(){
+        $parent = get_parent_class($this);//*A la variable parent se le asigna la clase padre product
+
+        return (new $parent)->getMorphClass();//Estamos obligados a crear una estancia del padre para poder trabajar con el
+    }
 }

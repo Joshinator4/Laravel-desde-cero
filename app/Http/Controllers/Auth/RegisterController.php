@@ -66,7 +66,8 @@ class RegisterController extends Controller
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            // 'password' => Hash::make($data['password']), //!OJOOOOOO se quita este cifrado para no cifrar 2 veces la contraseña. Ya se está cifrando por el metodo setter del modelo User
+            'password' => $data['password'],
         ]);
     }
 }

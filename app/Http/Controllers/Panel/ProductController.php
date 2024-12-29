@@ -8,7 +8,7 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\Models\PanelProduct;
-
+use Illuminate\Support\Facades\File;
 
 class ProductController extends Controller
 {
@@ -86,7 +86,16 @@ class ProductController extends Controller
             // ]);
 
         //!Esta forma es mas rapida y directa.Se trae los datos del POST realizado en el formulario de la vista de create.blade.php. Este request solo pasará los atributos asignados en fillable en el model Product. ESto puede traer mas atributos que serán ignorados si no estan en fillable
+
+
         $product = PanelProduct::create(request()->all());//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
+
+        //*Esto recorre las imagenes enviadas desde el formulario y las guarda en el storage del proyecto (con store) y añade el producto y las respectivas imagenes a la BBDD con el path de las imagenes guardadas en el storage del proyecto.
+        foreach ($request->images as $image) {
+            $product->images()->create([
+                'path' => 'images/' . $image->store('products', 'images')//! 'images/' es para que lo guarde en public/images/ y se le añade el nombre de la imagen con el link que se ha creado en filesystems por medio del metodo store('', ''). en store el 1er parametro es la carpeta donde se va a alamacenar la imagen y el 2º es el nombre del storage que se ha creado con su correspondiente link
+            ]);
+        }
 
         //Así devolveriamos mensajes de exito
         //session()->flash('success', "The new product with id: {$product->id} was created");
@@ -149,8 +158,27 @@ class ProductController extends Controller
         // ];
         //!De esta forma se validan las reglas, si falla alguna se disparará una excepcion y se devuelve a la pagina donde se ha lanzado la excepcion
         // request()->validate($rules);
-
         $product->update($request->validated());//!Se puede usar el request enviado por parámetro $request o el helper(metodo)request()
+
+        //*esto filtra si se envian o no imagenes nuevas en el momento de editar el producto. se envian nuevas imagenes hay que borrar las que ya habían
+        if ($request->hasFile('images')) {
+            foreach($product->images as $image) {
+                //!se premia la consistencia porque esta imagen esta guardada en public/images con el mismo nombre que en el storage. por lo cual se puede usar el path añadiendo la raiz de storage en el metodo storage_path("app/public/{$image->path}")
+                $path = storage_path("app/public/{$image->path}");//Nos quedamos con el path que se ha guardado en el storage del proyecto
+
+                File::delete($path);//Se borra la imagen(archivo) con la ruta de donde esta
+
+                $image->delete();//aqui se borra la informacion de la imagen en la base de datos
+            }
+
+            foreach ($request->images as $image) {
+            $product->images()->create([
+                'path' => 'images/' . $image->store('products', 'images')//! 'images/' es para que lo guarde en public/images/ y se le añade el nombre de la imagen con el link que se ha creado en filesystems por medio del metodo store('', ''). en store el 1er parametro es la carpeta donde se va a alamacenar la imagen y el 2º es el nombre del storage que se ha creado con su correspondiente link
+            ]);
+            }
+        }
+
+
 
         // return $product;
         return redirect()

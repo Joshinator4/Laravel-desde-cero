@@ -77,4 +77,17 @@ class User extends Authenticatable implements MustVerifyEmail
             return true;
         }
      }
+
+     //!al ser un setter se ejecuta antes de guardar el dato en la BBDD
+     public function setPasswordAtribrute($password){
+        $this->attributes['password'] = bcrypt($password);//Se cifra la contraseña recibida y se pone en el atributo
+        //!OJOOOOOOOOOOOOOOOO hay que tener cuidado de no cifrar 2 veces la contraseña quitar el cifrado en RegisterController (xq se cifra la contraseña cuando se regitra un usuario)
+     }
+
+     public function getProfileImageAttribute(){
+
+        return $this->image
+        ? "images/{$this->image->path}"
+        : 'https://www.gravatar.com/avatar/404?d=mp';
+     }
 }

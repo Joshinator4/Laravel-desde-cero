@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AvailableScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,7 +37,11 @@ class Order extends Model
     public function getTotalAttribute(){
         //!pluck() devuelve una lista de todos los value de una key dada.
         //!aqui desde el carro se recorre a todos los productos por medio de pluck y se accede al atributo total ('creado' con getTotalAttribute) y sumarlos todos para dar el precio total del carrito
-        return $this->products->pluck('total')->sum();
+        return $this->products()
+        ->withoutGlobalScope(AvailableScope::class)//*para que al momento de hacer el pago los productos que se queden con stock 0 no desaparezcan del total, se debe ignorar el scope de AvailableScope para que así aunque esté unavailable (cambiado por el evento updated de Product), pueda hacer los metodos a continuacion pluck y sum correctamente
+        ->get()//se usa el get para poder obtener los datos de la BBDD
+        ->pluck('total')
+        ->sum();
      }
 
 }

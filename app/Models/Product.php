@@ -11,11 +11,14 @@ use App\Models\Scopes\AvailableScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 //!ASI SE AÑADEN SCOPES AL MODELO. En este caso solo cogera en cada query que se haga a la BBDD solo los productos que tengas status = available
 #[ScopedBy([AvailableScope::class])]
 class Product extends Model
 {
+    use HasFactory, SoftDeletes;//*soft delete es una forma que tiene eloquent para que no elimine este caso el producto, solo lo oculta.
+
     protected $table = 'products';//!Esta es una forma de indicar a laravel de forma explicita que su tabla en la BBDD es la que se llama products y por ende todas las clases que heren de esta, su tabla tambien será products
 
     //!Este es un eager, se le indica que en las consultas a las BBDD que se hagan de productos se traigan siempre estas relaciones (en este caso solo las imagenes)
@@ -24,7 +27,6 @@ class Product extends Model
     ];
 
     //se usa hasfactory para crear valores aleatorios
-    use HasFactory;
     //Se crea vacio y se añade el fillable que se usa para asignar atributos de manera masiva
     protected $fillable = [
         'title',
@@ -34,14 +36,24 @@ class Product extends Model
         'status',
     ];
 
-    //!Tambien se puede añadir el global scope de esta forma
+
     /**
      * The "booted" method of the model.
      */
-    // protected static function booted(): void
-    // {
-    //     static::addGlobalScope(new AvailableScope);
-    // }
+    protected static function booted(): void
+    {
+        //!Tambien se puede añadir el global scope de esta forma
+        // static::addGlobalScope(new AvailableScope);
+
+        //*Se le añade un scope, llamando al evento updated de esta forma
+        static::updated(function (Product $product) {//!Cuidado aqui si no se pone la segunda condicion se haria un bucle infinito
+            if($product->stock == 0 && $product->status == 'available') {
+                $product->status = 'unavailabe';
+                $product->save();
+            }
+        });
+    }
+
 
     //Esta funcion trae los datos de la tabla pivote de carts-products. Hay que usar belong to many xq es relacion muchos a muchos.
     public function carts(){

@@ -5,7 +5,7 @@
 <!-- En la accion del formulario se llama a la ruta por el nombre productos.update -->
 <!-- El metodo es de tipo POST a la ruta llamada products.update pero esta ruta recibe un parámetro, el cual es el id del producto a editar.-->
 <!-- Se le pasa un segundo parametro a route con elproducto que envia el metodo edit del ProductController -->
-<form method="POST" action="{{ route('products.update', ['product' => $product->id]) }}">
+<form method="POST" action="{{ route('products.update', ['product' => $product->id]) }}" enctype="multipart/form-data">
     <!-- Hay que incluir csrf en nuestros formularios para que sean seguros -->
     @csrf
 
@@ -41,6 +41,14 @@
                 unavailable
             </option>
         </select>
+    </div>
+    <div class="form-row">
+        <label>{{ __('Images') }}</label>
+        <div class="custom-file">
+            <input type="file" accept="image/*" name="images[]" class="custom-file-input" multiple>
+            <label class="custom-file-label">Product images...</label>
+        </div>
+
     </div>
     <div class="form-row mt-3">
         <button type="submit" class="btn btn-primary btn-lg">Edit product</button>

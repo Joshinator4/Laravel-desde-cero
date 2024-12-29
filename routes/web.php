@@ -6,6 +6,8 @@
 //hay rutas de tipo get, post, patch, put, delete y match
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\Panel\UserController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\MainController;
@@ -15,10 +17,14 @@ use App\Http\Controllers\ProductCartController;
 use App\Http\Controllers\ProductController;
 
 
-
-
-
 Route::get('/', [MainController::class, 'index'])->name('main');
+
+Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+
+Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+Route::get('users', [UserController::class, 'index'])->name('users.index');
+Route::post('users/admin/{user}', [UserController::class, 'toggleAdmin'])->name('users.admin.toggle');
 
 //!Se ha creado un prefijo, filtrado por middleware y namespace diferentes para acceder al controlador products, en providers\AppServiceProvider.php
 //rutas de recurso. Es un conjunto de rutas CRUD de un recurso específico1er parametro el nombre del recurso (se agrupan todos por ese nombre) se accede por ejemplo como products.destroy y el 2º el controlador
@@ -29,16 +35,23 @@ Route::resource('products.carts', ProductCartController::class)->only('store', '
 
 Route::resource('carts', CartController::class)->only('index');
 
-Route::resource('orders', OrderController::class)->only('create', 'store');
+Route::resource('orders', OrderController::class)
+    ->only('create', 'store')
+    ->middleware(['verified']);//Estas rutas solo se podran acceder desde un usuario atentificado por email
 
 //ruta anidada
-Route::resource('orders.payments', OrderPaymentController::class)->only('create', 'store');
+Route::resource('orders.payments', OrderPaymentController::class)
+    ->only('create', 'store')
+    ->middleware(['verified']);//Estas rutas solo se podran acceder desde un usuario atentificado por email
 
 Auth::routes([
-    'verify' => true
+    'verify' => true, //*es para activar la verficación del usuario mediante el email
+    // 'reset' => false    esto serviría para no permitir el reseteo de contraseña si se ha olvidado
 ]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
 
 // Route::get('/products', [ProductController::class, 'index'])->name("products.index");
 
