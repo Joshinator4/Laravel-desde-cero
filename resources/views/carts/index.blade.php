@@ -15,7 +15,7 @@
     @else
         {{-- de esta forma accedemos al precio total del carro accediendo al atributo 'creado' total --}}
         <h4 class="text-center">
-            <strong>Grand Total: {{ $cart->total }}</strong>
+            <strong>Grand Total: {{ $cart->total }}€</strong>
         </h4>
         <a class="btn btn-success mb-3" href="{{ route('orders.create') }}">
             Start Order

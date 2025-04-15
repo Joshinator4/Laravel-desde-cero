@@ -26,4 +26,13 @@ class UserController extends Controller
             ->route('users.index')
             ->withSuccess("Admin status for user {$user->id} was toggled.");
     }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return redirect()
+            ->route('users.index')
+            ->withSuccess("User with ID {$user->id} was soft-deleted.");
+    }
 }

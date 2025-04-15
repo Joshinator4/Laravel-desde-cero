@@ -7,7 +7,7 @@
     <h1>Order details</h1>
 
     <h4 class="text-center">
-        <strong>Grand Total: {{ $cart->total }}</strong>
+        <strong>Grand Total: {{ $cart->total }}€</strong>
     </h4>
     <div class="text-center mb-3">
         <form class="d-inline"
@@ -27,6 +27,7 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Total</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,6 +43,7 @@
                         <td>
                             <strong>{{ $product->total }}€</strong>
                         </td>
+                        <td><a class="btn btn-primary" href="{{route('products.show', ['product'=>$product->id])}}">Show Product</a></td>
                     </tr>
                 @endforeach
             </tbody>

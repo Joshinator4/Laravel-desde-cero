@@ -8,20 +8,85 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+    <link rel="icon" href="{{ asset('img/logo-ies-playamar.png') }}" type="image/png">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+
+    <!-- Custom pastel style -->
+    <style>
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #b3e5fc; /* Azul pastel */
+        font-family: 'Nunito', sans-serif;
+        }
+        #app {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .navbar {
+            background-color: #c8e6c9; /* pastel azul */
+        }
+
+        .navbar-brand, .nav-link, .dropdown-item {
+            color: #004d40 !important; /* verde oscuro para contraste */
+        }
+
+        .nav-link:hover, .dropdown-item:hover {
+            background-color: #b2dfdb !important; /* pastel verde agua claro */
+        }
+
+
+        .btn-success:hover {
+            background-color: #9ccc65 !important;
+        }
+
+        .alert-success {
+            background-color: #dcedc8;
+            color: #33691e;
+            border-color: #c5e1a5;
+        }
+
+        .alert-danger {
+            background-color: #ffecb3;
+            color: #bf360c;
+            border-color: #ffe082;
+        }
+
+        .dropdown-menu {
+            background-color: #fffde7; /* pastel amarillo claro */
+        }
+
+        main {
+            background-color: #e3f2fd; /* pastel azul clarito */
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        img.rounded-circle {
+            border: 2px solid #80deea;
+        }
+    </style>
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-expand-md shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
+                    <img src="{{ asset('img/logo-ies-playamar.png') }}" alt="Logo" style="height: 40px; width: auto;">
+                    <span>{{ __('Main Page') }}</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -30,28 +95,26 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-                        {{-- Helper optional: si hay algo que puede ser null no saltará un error de null (en este caso el usuario, si no hay usuario logeado user() devolveria null) --}}
-                        {{-- A traves del helper auth()buscamos el usuario que este logeado ->user() y llamamos al metodo ->isAdmin --}}
                         @if (optional(auth()->user())->isAdmin())
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('panel') }}">{{ __('Panel') }}</a>
                             </li>
                         @endif
-                        {{-- Esta es la pestaña del carrito --}}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('carts.index') }}">
-                                {{-- Así podremos añadir la funcion de contar los productos que tiene el carrito --}}
-                                @inject('cartService', 'App\Services\CartService'){{--Con inject podemos agregar servicios a las vistas --}}
+                                @inject('cartService', 'App\Services\CartService')
                                 Cart ({{ $cartService->countProducts() }})
-
                             </a>
-
                         </li>
+                        @if (auth()->check())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('orders.index') }}">Orders</a>
+                            </li>
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
@@ -66,11 +129,11 @@
                             @endif
                         @else
                             <li class="nav-item dropdown">
+                            
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                     <img src="{{ asset(Auth::user()->profile_image) }}" alt="{{ Auth::user()->name }}" class="rounded-circle" width="50px" height="50px" >{{--Asi añadimos la imagen del usuario, si no tiene imagen se mostrrá el nombre del usuario y se le pone en un circulo con el tamaño deseado--}}
-                                    <span class="caret"></span>
+                                    <img src="{{ asset(Auth::user()->profile_image) }}" alt="{{ Auth::user()->name }}" class="rounded-circle" width="50px" height="50px" >
+                                    <span class="caret">{{ Auth::user()->name }}</span>
                                 </a>
-
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('profile.edit') }}">
@@ -81,9 +144,6 @@
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
-
-
-
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
                                     </form>
@@ -95,29 +155,21 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main>
             <div class="container-fluid">
-                <!-- Dump mostrará en tiempo de ejecucion los errores que hay-->
-                {{--@dump($errors)--}}
-                <!-- Esto filtra si hay algún error enviado desde el controlador  salte aquí, de esta forma solo se hace 1 vez por esta plantilla-->
                 @if (session()->has('error'))
                     <div class="alert alert-danger">
-                        {{ session()->get('error')}}
+                        {{ session()->get('error') }}
                     </div>
-
                 @endif
 
-                <!-- Esto filtra si hay algún mensaje de exito para mostrarlo-->
                 @if (session()->has('success'))
                     <div class="alert alert-success">
-                        {{ session()->get('success')}}
+                        {{ session()->get('success') }}
                     </div>
-
                 @endif
 
-                <!-- esto coge los posibles errores generados por validate del conjunto de reglas generadas en el controlador, any es por si esta vacío (no hay errores)-->
                 @if (isset($errors) && $errors->any())
-                    <!-- se recorre la lista de errores mostrandolos en una lista -->
                     <div class="alert alert-danger">
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -125,13 +177,10 @@
                             @endforeach
                         </ul>
                     </div>
-
                 @endif
 
-                <!--yield indica que aqui ira una sección de la vista-->
                 @yield('content')
             </div>
-
         </main>
     </div>
 </body>

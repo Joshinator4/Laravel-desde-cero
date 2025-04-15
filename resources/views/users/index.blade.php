@@ -34,14 +34,22 @@
                             <td>{{ $user->email}}</td>
                             <td>{{ optional($user->admin_since)->diffForHumans() ?? 'Never'}}</td>
                             <td>
-                                <!-- se realiza un formulario para poder hacer el cambio de admin llamando a la ruta con dicho metodo en el controlador pasandole el id del user.  -->
-                                <form method="POST" class="d-inline" action="{{route('users.admin.toggle', ['user'=>$user->id])}}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-link">
-                                       {{ $user->isAdmin() ? 'Remove' : 'Make' }}
-                                        Admin
-                                    </button>
-                                </form>
+                                <div class="d-flex gap-2">
+                                    <!-- Botón toggle admin -->
+                                    <form method="POST" action="{{ route('users.admin.toggle', ['user' => $user->id]) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning">
+                                            {{ $user->isAdmin() ? 'Remove' : 'Make' }} Admin
+                                        </button>
+                                    </form>
+
+                                    <!-- Botón eliminar usuario -->
+                                    <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Do you really want to delete this user?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Remove User</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

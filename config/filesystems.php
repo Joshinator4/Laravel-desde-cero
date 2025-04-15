@@ -81,6 +81,7 @@ return [
     'links' => [
         public_path('storage') => storage_path('app/public'),
         public_path('images') => storage_path('app/public/images'),//*Se crea virtualmente una carpeta igual a storage/app/public/images en public/images para poder acceder a los archivos que haya en el storage
+        //Tras generar el link hay que lanzar el comando php artisan storage:link para que se guarde el link
     ],
 
 ];

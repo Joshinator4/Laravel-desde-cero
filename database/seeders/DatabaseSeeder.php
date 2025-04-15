@@ -8,6 +8,9 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\OrderDetail;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -65,8 +68,17 @@ class DatabaseSeeder extends Seeder
                         ->each(function($product) use ($orders, $carts){//se recorren los prouctos para asiganarlos cada uno a una order y a un cart aleatorio
                             $order = $orders->random();//se coge una order aleatoria
                             //con ->products()->attach([])se le añade un producto con una cantidad a la order
+                            $quantity = mt_rand(1, 3);
                             $order->products()->attach([
-                                $product->id => ['quantity' => mt_rand(1,3)]
+                                $product->id => ['quantity' => $quantity]
+                            ]);
+
+                            // ✅ Crear el order_detail justo después del attach
+                            OrderDetail::create([
+                                'order_id'   => $order->id,
+                                'product_id' => $product->id,
+                                'quantity'   => $quantity,
+                                'price'      => $product->price,
                             ]);
 
                             $cart = $carts->random();//se coge un cart aleatorio
@@ -78,6 +90,15 @@ class DatabaseSeeder extends Seeder
                             $images = Image::factory(mt_rand(2,4))->make();//se crean entre 2 y 4 imagenes para cada producto
                             $product->images()->saveMany($images);//se guardan en el producto las imágenes generadas
                         });
+
+        User::create([
+            'name' => 'joshua',
+            'email' => 'josh@gmail.com',
+            'email_verified_at' => now(),
+            'admin_since' => now(),
+            'password' => Hash::make('hola1234'),
+            'remember_token' => Str::random(10),
+        ]);
 
     }
 }

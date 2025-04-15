@@ -25,7 +25,7 @@ class ProfileController extends Controller
         return DB::transaction(function () use ($request){
             $user = $request->user();//se coge el usuario de la peticion ($request)
 
-            $user->fill(array_filter($request->validated()));//se rellena el con los datos verificados. Con array_filter nos quedamos solo con los campos que se hayan completado (no esten vacíos. Asi por ejemplo si no se añade una contraseña dejará la que y tiene)
+            $user->fill(array_filter($request->validated()));//se rellena el con los datos verificados. Con array_filter nos quedamos solo con los campos que se hayan completado (no esten vacíos. Asi por ejemplo si no se añade una contraseña dejará la que ya tiene)
 
 
             if($user->isDirty('email')){//*se filtra si se ha cambiado el email con la funcion isDirty()

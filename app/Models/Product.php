@@ -85,4 +85,9 @@ class Product extends Model
         return $this->pivot->quantity * $this->price;
      }
 
+     public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
+
 }

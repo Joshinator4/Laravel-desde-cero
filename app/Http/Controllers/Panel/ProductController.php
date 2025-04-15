@@ -8,6 +8,7 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\Models\PanelProduct;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
 class ProductController extends Controller
@@ -16,10 +17,10 @@ class ProductController extends Controller
     //!Este constructor se usa para que no se pueda usar ningun método/vista si el usuario no está loggeado usando el middleware auth
     //!El middleware proporciona un mecanismo conveniente para inspeccionar y filtrar las solicitudes HTTP que ingresan a su aplicación. Por ejemplo, Laravel incluye un middleware que verifica que el usuario de su aplicación esté autenticado
     public function __construct(){
-        $this->middleware("auth");// se puede usar ->except(['nombre de la función1', 'nombre de la función2']) y ->only('nombre de la función')
+        $this->middleware("auth")->except('show');// se puede usar ->except(['nombre de la función1', 'nombre de la función2']) y ->only('nombre de la función')
     }
 
-    public function index(){
+    public function index(Request $request){
         //! Esto es utilizando Query Builder (no es recomendable, lo mejor es utilizar el ORM Eloquent) esto no esta usando el modelo. Esto no es escalable
         // $products = DB::table('products')->get();
         // mostramos lo datos parando la ejecucuion
@@ -30,11 +31,31 @@ class ProductController extends Controller
         // return $products; si se utiliza así devuelve los datos en formato json
         // dd($products);
 
-        return view('products.index')->with([
-            // 'products'=> PanelProduct::withoutGlobalScope(AvailableScope::class)->get(),//!Se desea que se muestren todos los productos, disponibles y no disponibles. Se ignora el global scope AvailableScope. Asi se genera el problema de que se muestran los unavailable pero no dejar entrar en los metodos edit, show, delete porque ignora estos productos por el global scope
-            // 'products'=> PanelProduct::all(),//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
-            'products'=> PanelProduct::without('images')->get(), //*Se hace esto para recibir los productos sin imagenes ya que no se van a utilizar
-        ]);
+        // Verificar si hay un término de búsqueda y aplicarlo
+        $searchTerm = $request->input('search');
+
+        if ($searchTerm) {
+            // Si se proporciona un término de búsqueda, filtrar los productos por nombre
+            $products = PanelProduct::where('title', 'like', '%' . $searchTerm . '%')->get();
+            return view("products.index")->with([
+            'products'=> $products,
+            ]);
+        } else {
+            return view('products.index')->with([
+                // 'products'=> PanelProduct::withoutGlobalScope(AvailableScope::class)->get(),//!Se desea que se muestren todos los productos, disponibles y no disponibles. Se ignora el global scope AvailableScope. Asi se genera el problema de que se muestran los unavailable pero no dejar entrar en los metodos edit, show, delete porque ignora estos productos por el global scope
+                // 'products'=> PanelProduct::all(),//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
+                'products'=> PanelProduct::without('images')->get(), //*Se hace esto para recibir los productos sin imagenes ya que no se van a utilizar
+            ]);
+        }
+
+        
+
+
+        // return view('products.index')->with([
+        //     // 'products'=> PanelProduct::withoutGlobalScope(AvailableScope::class)->get(),//!Se desea que se muestren todos los productos, disponibles y no disponibles. Se ignora el global scope AvailableScope. Asi se genera el problema de que se muestran los unavailable pero no dejar entrar en los metodos edit, show, delete porque ignora estos productos por el global scope
+        //     // 'products'=> PanelProduct::all(),//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
+        //     'products'=> PanelProduct::without('images')->get(), //*Se hace esto para recibir los productos sin imagenes ya que no se van a utilizar
+        // ]);
     }
 
     public function create (){
@@ -88,7 +109,7 @@ class ProductController extends Controller
         //!Esta forma es mas rapida y directa.Se trae los datos del POST realizado en el formulario de la vista de create.blade.php. Este request solo pasará los atributos asignados en fillable en el model Product. ESto puede traer mas atributos que serán ignorados si no estan en fillable
 
 
-        $product = PanelProduct::create(request()->all());//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignrará el global scope
+        $product = PanelProduct::create(request()->all());//?Se ha creado oto modelo PanelProduct que hereda del modelo Product para poder acceder a estos métodos, usando dicho modelo creado, ya que ignorará el global scope
 
         //*Esto recorre las imagenes enviadas desde el formulario y las guarda en el storage del proyecto (con store) y añade el producto y las respectivas imagenes a la BBDD con el path de las imagenes guardadas en el storage del proyecto.
         foreach ($request->images as $image) {
@@ -188,7 +209,7 @@ class ProductController extends Controller
     }
 
     //? SE HA CAMBIADO EL TIPO (model) DE PRODUCTO RECIBIDO A PanelProduct PARA PODER ADAPTARSE AL CAMBIO PARA NO USAR EL GLOBALSCOPE
-    //se puede usar el nombre del modelo anets de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
+    //se puede usar el nombre del modelo antes de la variable pasada por parámetro a la funcion para que Laravel internamente haga el findorfail()
     public function destroy (PanelProduct $product){
 
         $product->delete();

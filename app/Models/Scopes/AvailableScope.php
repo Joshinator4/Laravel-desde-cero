@@ -13,7 +13,7 @@ class AvailableScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        //!En este caso como solo se usarará en los productos, se llama al scopre local scopeAvailable que sta definido en el modelo Product
+        //!En este caso como solo se usarará en los productos, se llama al scopre local scopeAvailable que esta definido en el modelo Product
         $builder->available();
     }
 }

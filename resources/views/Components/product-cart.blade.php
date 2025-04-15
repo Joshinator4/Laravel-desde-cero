@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="card-body">
+    <div class="card-body" style="background-color: #fff9c4">
         <h4 class="text-right"><strong>€{{$product->price}}</strong></h4>
         <h5 class="card-title">{{$product->title}}</h5>
         <p class="card-text">{{$product->description}}</p>
@@ -44,13 +44,21 @@
                 <button type="submit" class="btn btn-warning">Remove Product</button>
             </form>
         @else {{--?Si no estamos en el carrito se muestra otro tipo de formulario --}}
-            <form class="form-inline"
-            method="POST"
-            action="{{ route('products.carts.store', ['product' => $product->id]) }}"
-            >
-                @csrf
-                <button type="submit" class="btn btn-success">Add to Cart</button>
-            </form>
+            <div class="d-flex justify-content-between w-100">
+                <form class="form-inline"
+                method="POST"
+                action="{{ route('products.carts.store', ['product' => $product->id]) }}"
+                >
+                    @csrf
+                    <button type="submit" class="btn btn-success">Add to Cart</button>
+                </form>
+
+                @if (Route::currentRouteName() !== 'products.show')
+                    <a class="btn btn-primary" href="{{ route('products.show', ['product' => $product->id]) }}">Show Product</a>
+                @else
+                    <a class="btn btn-secondary" href="{{ url()->previous() }}">Go Back</a>
+                @endif
+            </div>
         @endif
 
 

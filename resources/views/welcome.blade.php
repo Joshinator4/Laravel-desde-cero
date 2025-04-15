@@ -5,6 +5,14 @@
     <!-- En este caso se envia la informacion como product, si en el with se pone por ejemplo with(['element'=>$product]) aqui se accederia a los valores con $element-->
 	<h1>Welcome</h1>
 
+    <!-- Formulario de búsqueda -->
+    <form method="GET" action="{{ route('main') }}">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="search" placeholder="Search products by name" value="{{ request('search') }}">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </form>
+
     @empty($products)
         <div class="alert alert-danger">
             <strong>No products yet!</strong>

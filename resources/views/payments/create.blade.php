@@ -1,22 +1,31 @@
-<!--Con extends se carga la plantilla de html que hemos creado en layouts master-->
 @extends('layouts.app')
 
-<!--Con section se bindea el contenido del yield creada en la plantilla en este caso será content-->
 @section('content')
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <h1 class="mb-4">Payment Details</h1>
 
-    <h1>Payment details</h1>
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 class="mb-3">Order #{{ $order->id }}</h4>
+                        <p><strong>Total:</strong> €{{ $order->orderDetails->sum(function($detail) {
+                                    return $detail->price * $detail->quantity;
+                                }) }}</p>
 
-    <h4 class="text-center">
-        <strong>Grand Total: {{ $order->total }}</strong>
-    </h4>
-    <div class="text-center mb-3">
-        <form class="d-inline"
-        method="POST"
-        {{-- Al ser un controlador anidado se debe indicar a parte de la ruta el id de la order --}}
-        action="{{ route('orders.payments.store', ['order' => $order->id]) }}"
-        >
-            @csrf
-            <button type="submit" class="btn btn-success">Pay</button>
-        </form>
+                        <form method="POST" action="{{ route('orders.payments.store', ['order' => $order->id]) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-lg btn-success w-100">
+                                Pay with Stripe
+                            </button>
+                        </form>
+
+                        <p class="mt-3 text-muted small">
+                            You will be redirected to a secure Stripe checkout page.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

@@ -14,7 +14,9 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\ProductCartController;
-use App\Http\Controllers\ProductController;
+//use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StripeController;
+use App\Http\Controllers\Panel\ProductController;
 
 
 Route::get('/', [MainController::class, 'index'])->name('main');
@@ -25,6 +27,7 @@ Route::put('profile', [ProfileController::class, 'update'])->name('profile.updat
 
 Route::get('users', [UserController::class, 'index'])->name('users.index');
 Route::post('users/admin/{user}', [UserController::class, 'toggleAdmin'])->name('users.admin.toggle');
+Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
 //!Se ha creado un prefijo, filtrado por middleware y namespace diferentes para acceder al controlador products, en providers\AppServiceProvider.php
 //rutas de recurso. Es un conjunto de rutas CRUD de un recurso específico1er parametro el nombre del recurso (se agrupan todos por ese nombre) se accede por ejemplo como products.destroy y el 2º el controlador
@@ -36,13 +39,17 @@ Route::resource('products.carts', ProductCartController::class)->only('store', '
 Route::resource('carts', CartController::class)->only('index');
 
 Route::resource('orders', OrderController::class)
-    ->only('create', 'store')
+    ->only('create', 'store', 'index', 'show')
     ->middleware(['verified']);//Estas rutas solo se podran acceder desde un usuario atentificado por email
 
 //ruta anidada
 Route::resource('orders.payments', OrderPaymentController::class)
     ->only('create', 'store')
     ->middleware(['verified']);//Estas rutas solo se podran acceder desde un usuario atentificado por email
+
+Route::get('orders/{order}/download', [OrderController::class, 'downloadPdf'])
+    ->middleware(['verified'])
+    ->name('orders.download');
 
 Auth::routes([
     'verify' => true, //*es para activar la verficación del usuario mediante el email
@@ -51,7 +58,19 @@ Auth::routes([
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/orders/{order}/payment', [OrderPaymentController::class, 'create'])->name('orders.payments.create');
+Route::post('/orders/{order}/payment', [OrderPaymentController::class, 'store'])->name('orders.payments.store');
+Route::get('/orders/{order}/payment-success', [OrderPaymentController::class, 'success'])->name('orders.payments.success');
 
+Route::get('/payments/success', function () {
+    return view('payments.success');
+})->name('payments.success');
+
+Route::get('/payments/cancel/{order}', function (App\Models\Order $order) {
+    return view('payments.cancel', compact('order'));
+})->name('payments.cancel');
+
+//Route::get('panel/products/create', [ProductController::class, 'create'])->name('products.create');
 
 // Route::get('/products', [ProductController::class, 'index'])->name("products.index");
 

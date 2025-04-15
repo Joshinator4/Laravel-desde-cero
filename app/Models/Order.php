@@ -44,4 +44,10 @@ class Order extends Model
         ->sum();
      }
 
+     public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
+
+
 }
